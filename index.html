@@ -3,78 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SubRecon Pro | Advanced Subdomain Enumeration</title>
+    <title>SubRecon | Advanced Subdomain Discovery</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
-        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
-        .header { background: #1a1a2e; color: white; padding: 30px; text-align: center; }
-        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
-        .header h1 i { color: #4CAF50; }
-        .header p { opacity: 0.9; }
-        .stats { background: #16213e; color: white; padding: 20px; display: flex; justify-content: space-around; flex-wrap: wrap; }
-        .stat-card { text-align: center; padding: 15px; min-width: 120px; }
-        .stat-number { font-size: 2em; font-weight: bold; color: #4CAF50; }
-        .stat-label { margin-top: 5px; opacity: 0.8; font-size: 0.85em; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; background: rgba(255,255,255,0.95); border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); overflow: hidden; backdrop-filter: blur(10px); }
+        .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 35px; text-align: center; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; letter-spacing: -0.5px; }
+        .header h1 i { color: #00d4ff; margin-right: 10px; }
+        .header p { opacity: 0.85; font-size: 1em; }
+        .owner { margin-top: 15px; font-size: 0.9em; color: #00d4ff; }
+        .owner i { margin-right: 5px; }
+        .stats { background: #0f0f23; color: white; padding: 25px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 15px; }
+        .stat-card { text-align: center; padding: 10px 20px; background: rgba(255,255,255,0.05); border-radius: 15px; min-width: 120px; backdrop-filter: blur(5px); }
+        .stat-number { font-size: 2.2em; font-weight: bold; background: linear-gradient(135deg, #00d4ff, #7c4dff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .stat-label { margin-top: 8px; opacity: 0.7; font-size: 0.8em; }
         .content { padding: 30px; }
         
         /* Input Area */
         .input-area { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
-        .domain-input { flex: 1; padding: 14px 20px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; transition: all 0.3s; }
-        .domain-input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 10px rgba(102,126,234,0.2); }
-        .scan-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 14px 30px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: transform 0.2s; display: flex; align-items: center; gap: 8px; }
-        .scan-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102,126,234,0.4); }
+        .domain-input { flex: 1; padding: 15px 22px; border: 2px solid #e0e0e0; border-radius: 50px; font-size: 16px; transition: all 0.3s; background: white; }
+        .domain-input:focus { outline: none; border-color: #00d4ff; box-shadow: 0 0 0 3px rgba(0,212,255,0.1); }
+        .scan-btn { background: linear-gradient(135deg, #00d4ff, #7c4dff); color: white; border: none; padding: 15px 35px; border-radius: 50px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 10px; }
+        .scan-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0,212,255,0.4); }
         .scan-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         
-        /* Toggles */
-        .toggles { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 12px; }
-        .toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .toggle input { width: 18px; height: 18px; cursor: pointer; }
+        /* Options (hidden style but functional) */
+        .options-area { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; padding: 12px 0; justify-content: center; }
+        .option { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 5px 12px; background: #f5f5f5; border-radius: 30px; font-size: 13px; transition: 0.2s; }
+        .option:hover { background: #e0e0e0; }
+        .option input { width: 16px; height: 16px; cursor: pointer; }
         
-        /* Tools Bar */
-        .tools-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #e0e0e0; }
-        .tool-btn { background: #f0f0f0; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
-        .tool-btn:hover { background: #667eea; color: white; transform: translateY(-1px); }
+        /* Tools Bar (compact) */
+        .tools-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 25px; justify-content: center; border-top: 1px solid #e0e0e0; padding-top: 20px; }
+        .tool-btn { background: #f0f2f5; border: none; padding: 8px 16px; border-radius: 30px; cursor: pointer; font-size: 12px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; color: #555; }
+        .tool-btn:hover { background: linear-gradient(135deg, #00d4ff, #7c4dff); color: white; transform: translateY(-1px); }
         
         /* Progress */
         .progress-container { background: #e0e0e0; height: 4px; border-radius: 4px; margin: 15px 0; display: none; overflow: hidden; }
-        .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); transition: width 0.3s; }
+        .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #00d4ff, #7c4dff); transition: width 0.3s; }
         
         /* Search Box */
         .search-box { margin: 20px 0; }
-        #searchInput { width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 15px; transition: all 0.3s; }
-        #searchInput:focus { outline: none; border-color: #667eea; }
+        #searchInput { width: 100%; padding: 12px 18px; border: 2px solid #e0e0e0; border-radius: 40px; font-size: 14px; transition: all 0.3s; }
+        #searchInput:focus { outline: none; border-color: #00d4ff; }
         
-        /* Results Table */
+        /* Results */
         .results-stats { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-        .results-stats h3 { color: #333; }
-        .results-stats span { color: #667eea; font-weight: bold; }
-        .table-wrapper { overflow-x: auto; max-height: 500px; overflow-y: auto; border-radius: 10px; border: 1px solid #e0e0e0; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th { text-align: left; padding: 12px; background: #f8f9fa; color: #555; border-bottom: 2px solid #e0e0e0; position: sticky; top: 0; background: white; }
-        td { padding: 10px 12px; border-bottom: 1px solid #e0e0e0; }
+        .results-stats h3 { color: #333; font-weight: 500; }
+        .results-stats span { color: #00d4ff; font-weight: bold; font-size: 1.1em; }
+        .table-wrapper { overflow-x: auto; max-height: 500px; overflow-y: auto; border-radius: 12px; border: 1px solid #e0e0e0; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { text-align: left; padding: 12px 15px; background: #f8f9fa; color: #555; border-bottom: 2px solid #e0e0e0; position: sticky; top: 0; background: white; font-weight: 600; }
+        td { padding: 10px 15px; border-bottom: 1px solid #f0f0f0; }
         tr:hover td { background: #f8f9fa; }
-        .hostname { font-family: monospace; color: #2c3e50; font-weight: 500; }
-        .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 8px; }
-        .badge-cf { background: #1a3300; color: #f6821f; border: 0.5px solid #f6821f; }
-        .badge-aws { background: #1a0f0f; color: #ff6b6b; border: 0.5px solid #ff6b6b; }
-        .badge-gcp { background: #0f2a3a; color: #4285f4; border: 0.5px solid #4285f4; }
-        .port-tag { display: inline-block; background: #e3f2fd; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin: 2px; cursor: pointer; }
-        .port-tag:hover { background: #667eea; color: white; }
-        .action-icons i { margin: 0 5px; cursor: pointer; color: #999; transition: color 0.2s; }
-        .action-icons i:hover { color: #667eea; }
+        .hostname { font-family: 'Courier New', monospace; color: #2c3e50; font-weight: 500; font-size: 12px; }
+        .port-tag { display: inline-block; background: linear-gradient(135deg, #e3f2fd, #f3e5f5); padding: 2px 8px; border-radius: 20px; font-size: 10px; margin: 2px; cursor: pointer; transition: 0.2s; }
+        .port-tag:hover { background: #00d4ff; color: white; }
+        .action-icons i { margin: 0 4px; cursor: pointer; color: #999; transition: color 0.2s; font-size: 14px; }
+        .action-icons i:hover { color: #00d4ff; }
         
         /* Loading */
-        .loading { text-align: center; padding: 50px; font-size: 18px; color: #666; }
-        .loading i { font-size: 40px; margin-bottom: 15px; color: #667eea; }
-        .error { background: #f44336; color: white; padding: 15px; border-radius: 8px; margin: 20px; text-align: center; }
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 8px; font-size: 14px; opacity: 0; transition: opacity 0.3s; z-index: 1000; }
-        .footer { background: #f1f1f1; padding: 20px; text-align: center; color: #666; font-size: 14px; }
+        .loading { text-align: center; padding: 60px; font-size: 16px; color: #888; }
+        .loading i { font-size: 45px; margin-bottom: 15px; color: #00d4ff; }
+        .error { background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; padding: 15px 20px; border-radius: 12px; margin: 20px; text-align: center; }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 10px 24px; border-radius: 50px; font-size: 13px; opacity: 0; transition: opacity 0.3s; z-index: 1000; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #888; font-size: 12px; border-top: 1px solid #e0e0e0; }
+        .footer a { color: #00d4ff; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
         
         @media (max-width: 768px) {
             .content { padding: 20px; }
-            td, th { font-size: 12px; padding: 8px; }
+            td, th { font-size: 11px; padding: 8px 10px; }
             .stat-number { font-size: 1.5em; }
+            .header h1 { font-size: 1.8em; }
+            .scan-btn { padding: 12px 25px; }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -82,55 +85,55 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-globe"></i> SubRecon Pro</h1>
-            <p>Advanced subdomain enumeration | 10+ passive sources | Real-time streaming</p>
+            <h1><i class="fas fa-compass"></i> SubRecon</h1>
+            <p>Intelligent subdomain discovery engine</p>
+            <div class="owner"><i class="fas fa-crown"></i> Powered by MAHBOUB MILLION</div>
         </div>
         <div class="stats" id="stats">
-            <div class="stat-card"><div class="stat-number" id="totalCount">0</div><div class="stat-label">Total Subdomains</div></div>
-            <div class="stat-card"><div class="stat-number" id="aliveCount">0</div><div class="stat-label">With Ports</div></div>
+            <div class="stat-card"><div class="stat-number" id="totalCount">0</div><div class="stat-label">Total Assets</div></div>
+            <div class="stat-card"><div class="stat-number" id="aliveCount">0</div><div class="stat-label">Active</div></div>
             <div class="stat-card"><div class="stat-number" id="ipCount">0</div><div class="stat-label">IPs Resolved</div></div>
             <div class="stat-card"><div class="stat-number" id="portCount">0</div><div class="stat-label">Open Ports</div></div>
-            <div class="stat-card"><div class="stat-number" id="timeCount">0s</div><div class="stat-label">Time</div></div>
-            <div class="stat-card"><div class="stat-number" id="sourceCount">0</div><div class="stat-label">Data Sources</div></div>
+            <div class="stat-card"><div class="stat-number" id="timeCount">0s</div><div class="stat-label">Duration</div></div>
         </div>
         <div class="content">
             <div class="input-area">
                 <input type="text" id="domainInput" class="domain-input" placeholder="example.com" autocomplete="off">
-                <button class="scan-btn" id="searchBtn" onclick="runDiscovery()"><i class="fas fa-rocket"></i> Start Scan</button>
+                <button class="scan-btn" id="searchBtn" onclick="runDiscovery()"><i class="fas fa-rocket"></i> Discover</button>
             </div>
             
-            <div class="toggles">
-                <label class="toggle"><input type="checkbox" id="resolveIps" checked> <i class="fas fa-server"></i> IP Resolution</label>
-                <label class="toggle"><input type="checkbox" id="portScan"> <i class="fas fa-plug"></i> Port Scan (14 ports)</label>
-                <label class="toggle"><input type="checkbox" id="cdnDetect" checked> <i class="fas fa-cloud"></i> CDN Detection</label>
+            <div class="options-area">
+                <label class="option"><input type="checkbox" id="resolveIps" checked> <i class="fas fa-server"></i> IP Resolution</label>
+                <label class="option"><input type="checkbox" id="portScan"> <i class="fas fa-plug"></i> Port Scan</label>
+                <label class="option"><input type="checkbox" id="cdnDetect" checked> <i class="fas fa-cloud"></i> CDN Detection</label>
             </div>
             
             <div class="tools-bar">
                 <button class="tool-btn" onclick="copyAllHosts()"><i class="fas fa-copy"></i> Copy All</button>
-                <button class="tool-btn" onclick="exportTXT()"><i class="fas fa-file-alt"></i> Export TXT</button>
-                <button class="tool-btn" onclick="exportCSV()"><i class="fas fa-table"></i> Export CSV</button>
+                <button class="tool-btn" onclick="exportTXT()"><i class="fas fa-file-alt"></i> TXT</button>
+                <button class="tool-btn" onclick="exportCSV()"><i class="fas fa-table"></i> CSV</button>
                 <button class="tool-btn" onclick="extractIPs()"><i class="fas fa-network-wired"></i> Extract IPs</button>
                 <button class="tool-btn" onclick="extractDomains()"><i class="fas fa-globe"></i> Extract Domains</button>
-                <button class="tool-btn" onclick="showStatistics()"><i class="fas fa-chart-pie"></i> Statistics</button>
+                <button class="tool-btn" onclick="showStatistics()"><i class="fas fa-chart-pie"></i> Stats</button>
             </div>
             
             <div class="progress-container" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
             
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="🔎 Filter subdomains..." onkeyup="filterSubdomains()">
+                <input type="text" id="searchInput" placeholder="🔎 Filter results..." onkeyup="filterSubdomains()">
             </div>
             
             <div class="results-stats">
-                <h3><i class="fas fa-list"></i> Discovered Subdomains</h3>
+                <h3><i class="fas fa-list-ul"></i> Discovered Assets</h3>
                 <span id="resultCount">0</span>
             </div>
             <div id="results">
-                <div class="loading"><i class="fas fa-search"></i><br>Enter a domain to start scanning</div>
+                <div class="loading"><i class="fas fa-search"></i><br>Enter domain to start discovery</div>
             </div>
         </div>
         <div class="footer">
-            <p>Powered by <strong>SubRecon Pro</strong> | Data from 10+ passive sources (CRT.sh, AlienVault, BufferOver, DNSDumpster, etc.)</p>
-            <p style="margin-top: 10px;"><i class="fab fa-telegram"></i> <a href="https://t.me/VPSPLUSMODE" target="_blank">MAHBOUB MILLION</a> | Advanced OSINT Tool</p>
+            <p><i class="fas fa-shield-alt"></i> MAHBOUB MILLION · Advanced Intelligence Engine</p>
+            <p style="margin-top: 8px;"><i class="fab fa-telegram"></i> <a href="https://t.me/VPSPLUSMODE" target="_blank">Join Channel</a> for updates</p>
         </div>
     </div>
     <div class="toast" id="toastMsg">✓</div>
@@ -139,14 +142,12 @@
         let currentData = [];
         let allSubdomains = [];
         let startTime = 0;
-        let sourcesCompleted = 0;
-        const TOTAL_SOURCES = 10;
         let renderedCount = 0;
         
         const SCAN_PORTS = [80, 443, 22, 21, 25, 3306, 5432, 6379, 8080, 8443, 3389, 5900, 27017, 1433];
         const PORT_NAMES = {80:'HTTP',443:'HTTPS',22:'SSH',21:'FTP',25:'SMTP',3306:'MySQL',5432:'PostgreSQL',6379:'Redis',8080:'HTTP-alt',8443:'HTTPS-alt',3389:'RDP',5900:'VNC',27017:'MongoDB',1433:'MSSQL'};
 
-        // ============== 10+ INTELLIGENCE SOURCES ==============
+        // Intelligence sources (hidden from UI)
         async function srcCRT(d) {
             try{ let r=await fetch(`https://crt.sh/?q=%.${d}&output=json`); let arr=await r.json(); let s=new Set();
                 if(Array.isArray(arr)) arr.forEach(e=>{ if(e.name_value) e.name_value.split('\n').forEach(n=>{ let c=n.trim().toLowerCase(); if(c && c.endsWith(d) && c!==d) s.add(c); })});
@@ -193,34 +194,14 @@
         async function srcAnubis(d) {
             try{ let r=await fetch(`https://jldc.me/anubis/subdomains/${d}`); let j=await r.json(); if(Array.isArray(j)) return j.filter(s=>s && s.endsWith(d)).map(s=>s.toLowerCase()); return []; } catch(e){ return []; }
         }
-        async function srcThreatCrowd(d) {
-            try{ let r=await fetch(`https://www.threatcrowd.org/searchApi/v2/domain/report/?domain=${d}`); let j=await r.json(); if(j.subdomains && Array.isArray(j.subdomains)) return j.subdomains.map(s=>s.toLowerCase()); return []; } catch(e){ return []; }
-        }
-        async function srcUrlScan(d) {
-            try{ let r=await fetch(`https://urlscan.io/api/v1/search/?q=domain:${d}`); let j=await r.json(); let s=new Set();
-                if(j.results) j.results.forEach(res=>{ if(res.page && res.page.domain && res.page.domain.endsWith(d)) s.add(res.page.domain.toLowerCase()); });
-                return [...s];
-            } catch(e){ return []; }
-        }
 
         async function getAllSubdomains(domain) {
-            let sources = [srcCRT, srcAlien, srcBuffer, srcHacker, srcCertSpot, srcDumpster, srcRapid, srcAnubis, srcThreatCrowd, srcUrlScan];
+            let sources = [srcCRT, srcAlien, srcBuffer, srcHacker, srcCertSpot, srcDumpster, srcRapid, srcAnubis];
             let all = new Set();
-            sourcesCompleted = 0;
-            
-            for(let i=0; i<sources.length; i++){
-                let src = sources[i];
-                try{ 
-                    let res = await src(domain); 
-                    res.forEach(x=>all.add(x));
-                    sourcesCompleted++;
-                    let percent = (sourcesCompleted / sources.length) * 40;
-                    document.getElementById('progressFill').style.width = `${percent}%`;
-                    document.getElementById('sourceCount').innerText = sourcesCompleted;
-                } catch(e){ 
-                    sourcesCompleted++;
-                    document.getElementById('sourceCount').innerText = sourcesCompleted;
-                }
+            for(let src of sources){
+                try{ let res = await src(domain); res.forEach(x=>all.add(x)); } catch(e){}
+                let percent = (all.size / 100) * 40;
+                document.getElementById('progressFill').style.width = `${Math.min(percent, 40)}%`;
             }
             return [...all].sort();
         }
@@ -263,11 +244,9 @@
             if(!doCDN) return '';
             let h = host.toLowerCase();
             if(h.includes('cloudflare') || (ip && (ip.startsWith('104.16.') || ip.startsWith('172.67.')))) 
-                return '<span class="badge badge-cf"><i class="fab fa-cloudflare"></i> CF</span>';
+                return '<span style="display:inline-block; background:#1a3300; padding:2px 6px; border-radius:12px; font-size:9px; margin-left:6px; color:#f6821f;"><i class="fab fa-cloudflare"></i> CF</span>';
             if(h.includes('cloudfront') || (ip && ip.includes('cloudfront'))) 
-                return '<span class="badge badge-aws"><i class="fab fa-aws"></i> CFront</span>';
-            if(h.includes('google') || (ip && ip.includes('google'))) 
-                return '<span class="badge badge-gcp"><i class="fab fa-google"></i> GCP</span>';
+                return '<span style="display:inline-block; background:#1a0f0f; padding:2px 6px; border-radius:12px; font-size:9px; margin-left:6px; color:#ff6b6b;"><i class="fab fa-aws"></i> CFront</span>';
             return '';
         }
 
@@ -296,12 +275,10 @@
             container.innerHTML = html;
             document.getElementById('resultCount').innerText = data.length;
             
-            // Update stats
             let withPorts = data.filter(x=>x.ports.length>0).length;
             let totalPorts = data.reduce((a,b)=>a+b.ports.length,0);
             document.getElementById('aliveCount').innerText = withPorts;
             document.getElementById('portCount').innerText = totalPorts;
-            let uniqueIPs = [...new Set(data.filter(x=>x.ip!=='-').map(x=>x.ip))].length;
             document.getElementById('totalCount').innerText = data.length;
         }
 
@@ -318,16 +295,14 @@
             
             document.getElementById('progressBar').style.display = 'block';
             document.getElementById('searchBtn').disabled = true;
-            document.getElementById('results').innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i><br>Scanning 10+ intelligence sources...</div>';
+            document.getElementById('results').innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i><br>Processing intelligence data...</div>';
             document.getElementById('progressFill').style.width = '0%';
-            document.getElementById('sourceCount').innerText = '0';
             startTime = Date.now();
             renderedCount = 0;
-            sourcesCompleted = 0;
             
             try {
                 let subs = await getAllSubdomains(domain);
-                if(subs.length === 0){ showError('No subdomains found'); reset(); return; }
+                if(subs.length === 0){ showError('No results found'); reset(); return; }
                 subs = [...new Set(subs)];
                 document.getElementById('totalCount').innerText = subs.length;
                 let enriched = await processHosts(subs);
@@ -343,28 +318,28 @@
                 if(!document.getElementById('resolveIps').checked) document.getElementById('ipCount').innerText = 'off';
                 if(!document.getElementById('portScan').checked){ document.getElementById('portCount').innerText = 'off'; document.getElementById('aliveCount').innerText = 'N/A'; }
                 
-                showToast(`✅ Found ${enriched.length} subdomains in ${elapsed}s`);
-            } catch(e){ showError('Network error: ' + e.message); }
+                showToast(`Completed · ${enriched.length} assets found`);
+            } catch(e){ showError('Connection error'); }
             finally{ reset(); }
             function reset(){ document.getElementById('progressBar').style.display='none'; document.getElementById('searchBtn').disabled=false; }
         }
 
         function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
-        function copyClipboard(text){ navigator.clipboard.writeText(text); showToast('Copied to clipboard!'); }
+        function copyClipboard(text){ navigator.clipboard.writeText(text); showToast('Copied to clipboard'); }
         function showToast(msg){ let t=document.getElementById('toastMsg'); t.innerText=msg; t.style.opacity='1'; setTimeout(()=>t.style.opacity='0', 2000); }
-        function showError(msg){ let container = document.getElementById('results'); container.innerHTML = `<div class="error">❌ ${msg}</div>`; setTimeout(()=>{ if(container.innerHTML.includes('error')) container.innerHTML = '<div class="loading"><i class="fas fa-search"></i><br>Enter a domain to start scanning</div>'; }, 3000); }
+        function showError(msg){ let container = document.getElementById('results'); container.innerHTML = `<div class="error">❌ ${msg}</div>`; setTimeout(()=>{ if(container.innerHTML.includes('error')) container.innerHTML = '<div class="loading"><i class="fas fa-search"></i><br>Enter domain to start discovery</div>'; }, 3000); }
         
         function copyAllHosts() { if(!currentData.length) return; let txt = currentData.map(x=>x.host).join('\n'); copyClipboard(txt); showToast(`Copied ${currentData.length} hosts`); }
         function extractIPs() { if(!currentData.length) return; let ips = [...new Set(currentData.filter(x=>x.ip!=='-').map(x=>x.ip))]; if(ips.length===0) return showError('No IPs resolved'); copyClipboard(ips.join('\n')); showToast(`Copied ${ips.length} unique IPs`); }
         function extractDomains() { if(!currentData.length) return; let domains = currentData.map(x=>x.host); copyClipboard(domains.join('\n')); showToast(`Copied ${domains.length} domains`); }
         function showStatistics() {
             if(!currentData.length) return;
-            let stats = { total: currentData.length, withPorts: currentData.filter(x=>x.ports.length>0).length, totalPorts: currentData.reduce((a,b)=>a+b.ports.length,0), uniqueIPs: [...new Set(currentData.filter(x=>x.ip!=='-').map(x=>x.ip))].length, cloudflare: currentData.filter(x=>x.host.includes('cloudflare') || (x.ip && x.ip.startsWith('104.16.'))).length, cloudfront: currentData.filter(x=>x.host.includes('cloudfront')).length };
-            alert(`📊 STATISTICS\n\nTotal Subdomains: ${stats.total}\nWith Open Ports: ${stats.withPorts}\nTotal Open Ports: ${stats.totalPorts}\nUnique IPs: ${stats.uniqueIPs}\nCloudFlare CDN: ${stats.cloudflare}\nCloudFront CDN: ${stats.cloudfront}`);
+            let stats = { total: currentData.length, withPorts: currentData.filter(x=>x.ports.length>0).length, totalPorts: currentData.reduce((a,b)=>a+b.ports.length,0), uniqueIPs: [...new Set(currentData.filter(x=>x.ip!=='-').map(x=>x.ip))].length };
+            alert(`📊 STATISTICS\n\nTotal Assets: ${stats.total}\nWith Open Ports: ${stats.withPorts}\nTotal Open Ports: ${stats.totalPorts}\nUnique IPs: ${stats.uniqueIPs}`);
         }
         function exportTXT() {
             if(!currentData.length) return;
-            let out = `# SubRecon Pro Scan · ${new Date().toLocaleString()}\n# Total: ${currentData.length}\n# Time: ${document.getElementById('timeCount').innerText}\n\n`;
+            let out = `# SubRecon Scan · ${new Date().toLocaleString()}\n# Total: ${currentData.length}\n\n`;
             currentData.forEach(x=>out+=`${x.host} | ${x.ip} | ports: ${x.ports.length?x.ports.join(','):'none'}\n`);
             download(out, `subrecon_${Date.now()}.txt`, 'text/plain');
         }
